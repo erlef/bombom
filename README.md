@@ -1,3 +1,8 @@
+<!--
+  SPDX-License-Identifier: Apache-2.0
+  SPDX-FileCopyrightText: 2025 Stritzinger GmbH
+-->
+
 # bombom
 
 A standalone Erlang escript that wraps [rebar3](https://www.rebar3.org/) and automatically injects the [rebar3_sbom](https://github.com/stritzinger/rebar3_sbom) plugin as a dependency into any rebar3 project, providing a convenient way to generate Software Bill of Materials (SBOM) for Erlang/OTP projects.
