@@ -48,8 +48,10 @@ jobs:
           files: |
             dist/amd64/bombom-linux-amd64.bin
             dist/amd64/bombom-linux-amd64.bin.sha256
+            dist/amd64/bombom-linux-amd64.bin.sigstore
             dist/arm64/bombom-linux-arm64.bin
             dist/arm64/bombom-linux-arm64.bin.sha256
+            dist/arm64/bombom-linux-arm64.bin.sigstore
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
