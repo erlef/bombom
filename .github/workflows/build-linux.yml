@@ -1,0 +1,126 @@
+name: Build bombom.bin - (linux)
+
+on:
+  workflow_call:
+    inputs:
+      otp_version:
+        type: string
+        required: true
+
+      arch:
+        type: string
+        required: false
+        default: "amd64" # amd64 | arm64
+
+      openssl_version:
+        type: string
+        required: false
+        default: "3.5.1"
+
+      musl_version:
+        type: string
+        required: false
+        default: "1.2.5"
+
+      bombom_ref:
+        type: string
+        required: false
+        default: "main"
+
+      bombom_repo_url:
+        type: string
+        required: false
+        default: "https://github.com/stritzinger/bombom.git"
+
+      piadina_repo_url:
+        type: string
+        required: false
+        default: "https://github.com/stritzinger/piadina.git"
+
+      piadina_ref:
+        type: string
+        required: false
+        default: "main"
+
+      otp_cdn_base_url:
+        type: string
+        required: false
+        default: "https://beam-machine-universal.b-cdn.net"
+
+      beammachine_home_url:
+        type: string
+        required: false
+        default: "https://beammachine.cloud/"
+
+      rebar3_url:
+        type: string
+        required: false
+        default: "https://s3.amazonaws.com/rebar3/rebar3"
+
+      attest:
+        type: boolean
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: ${{ inputs.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-latest' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            curl ca-certificates git build-essential python3 \
+            autoconf automake libtool \
+            libcbor-dev libarchive-dev
+
+      - name: Build bombom.bin (driver)
+        env:
+          ARCH_IN: ${{ inputs.arch }}
+          OTP_VERSION: ${{ inputs.otp_version }}
+          OPENSSL_VERSION: ${{ inputs.openssl_version }}
+          MUSL_VERSION: ${{ inputs.musl_version }}
+          OTP_CDN_BASE_URL: ${{ inputs.otp_cdn_base_url }}
+          BEAMMACHINE_HOME_URL: ${{ inputs.beammachine_home_url }}
+          REBAR3_URL: ${{ inputs.rebar3_url }}
+
+          BOMBOM_REF: ${{ inputs.bombom_ref }}
+          BOMBOM_REPO_URL: ${{ inputs.bombom_repo_url }}
+          PIADINA_REPO_URL: ${{ inputs.piadina_repo_url }}
+          PIADINA_REF: ${{ inputs.piadina_ref }}
+        run: |
+          chmod +x scripts/build-linux-driver.sh
+          ./scripts/build-linux-driver.sh
+
+      - name: Attest build provenance
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
+        id: attest-provenance
+        if: ${{ inputs.attest }}
+        with:
+          subject-path: dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}
+
+      - name: Export provenance bundle
+        if: ${{ inputs.attest }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp "${ATTESTATION}" "dist/${ARCH_IN}/${OUTPUT}.sigstore"
+        env:
+          ATTESTATION: ${{ steps.attest-provenance.outputs.bundle-path }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-${{ env.ARCH_IN }}
+          path: |
+            dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}
+            dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}.sha256
+            dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}.sigstore
