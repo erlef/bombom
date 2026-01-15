@@ -46,13 +46,13 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: linux-amd64
-          path: .
+          path: dist/amd64
 
       - name: Download arm64 artifacts
         uses: actions/download-artifact@v4
         with:
           name: linux-arm64
-          path: .
+          path: dist/arm64
 
       - name: Verify artifacts
         shell: bash
