@@ -45,7 +45,7 @@ jobs:
         uses: erlef/setup-beam@v1
         with:
           otp-version: ${{ inputs.otp_version || env.OTP_VERSION }}
-          rebar-version: ${{ inputs.rebar_version || env.REBAR_VERSION }}
+          rebar3-version: ${{ inputs.rebar_version || env.REBAR_VERSION }}
 
       - name: Build binaries using cassone
         run: |
