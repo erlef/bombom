@@ -17,10 +17,22 @@ jobs:
       rebar_version: "3.26.0"
       attest: true
 
+  test-amd64:
+    needs: build-bombom
+    uses: ./.github/workflows/test_and_attest.yml
+    with:
+      arch: "amd64"
+
+  test-arm64:
+    needs: build-bombom
+    uses: ./.github/workflows/test_and_attest.yml
+    with:
+      arch: "arm64"
+
   publish:
-    name: Publish release assets
     needs:
-      - build-bombom
+      - test-amd64
+      - test-arm64
     runs-on: ubuntu-latest
 
     env:

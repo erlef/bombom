@@ -1,0 +1,33 @@
+name: Test build (linux amd64 + arm64)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "test-ci-build"
+      - "test-ci-build/**"
+      - "feat/ci-build"
+      - "feat/ci-build/**"
+  pull_request:
+    branches:
+      - "main"
+
+jobs:
+  build:
+    uses: ./.github/workflows/build-linux.yml
+    with:
+      otp_version: "28.1.1"
+      rebar_version: "3.26.0"
+      attest: false
+
+  test-amd64:
+    needs: build
+    uses: ./.github/workflows/test_and_attest.yml
+    with:
+      arch: "amd64"
+
+  test-arm64:
+    needs: build
+    uses: ./.github/workflows/test_and_attest.yml
+    with:
+      arch: "arm64"

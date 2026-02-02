@@ -18,9 +18,6 @@ on:
         description: Whether to attest the build provenance
         required: false
         default: false
-  push:
-    branches:
-      - "gl/use-cassone-in-ci"
 
 permissions:
   contents: read
@@ -103,15 +100,3 @@ jobs:
             ${{github.workspace}}/bombom-linux-amd64.bin
             ${{github.workspace}}/bombom-linux-amd64.bin.sha256
             ${{github.workspace}}/bombom-linux-amd64.bin.sigstore
-
-  test-amd64:
-    needs: build
-    uses: ./.github/workflows/test_and_attest.yml
-    with:
-      arch: "amd64"
-
-  test-arm64:
-    needs: build
-    uses: ./.github/workflows/test_and_attest.yml
-    with:
-      arch: "arm64"
