@@ -26,8 +26,16 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bombom-linux-${{ inputs.arch }}-temp
+          path: /tmp
+
       - name: Test artifacts
         run: |
+          mv /tmp/bombom-linux-${{ inputs.arch }}.bin ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin
+          chmod +x ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin
           ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin -F json -f
 
       - name: Attest build provenance
