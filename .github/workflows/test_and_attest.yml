@@ -28,14 +28,14 @@ jobs:
 
       - name: Test artifacts
         run: |
-          ${{ github.workspace }}/bombom/bombom-linux-${{ inputs.arch }}.bin -F json -f
+          ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin -F json -f
 
       - name: Attest build provenance
         uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
         id: attest-provenance
         if: ${{ inputs.attest }}
         with:
-          subject-path: ${{ github.workspace }}/dist/bombom-linux-${{ inputs.arch }}.bin
+          subject-path: ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin
 
       - name: Export provenance bundle
         if: ${{ inputs.attest }}
@@ -43,7 +43,7 @@ jobs:
           ATT_BUNDLE: ${{ steps.attest-provenance.outputs.bundle-path }}
         run: |
           set -euo pipefail
-          cp "${{ env.ATT_BUNDLE }}" "${{ github.workspace }}/dist/bombom-linux-${{ inputs.arch }}.bin.sigstore"
+          cp "${{ env.ATT_BUNDLE }}" "${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin.sigstore"
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
@@ -51,6 +51,6 @@ jobs:
         with:
           name: bombom-linux-${{ inputs.arch }}
           path: |
-            ${{ github.workspace }}/dist/bombom-linux-${{ inputs.arch }}.bin
-            ${{ github.workspace }}/dist/bombom-linux-${{ inputs.arch }}.bin.sha256
-            ${{ github.workspace }}/dist/bombom-linux-${{ inputs.arch }}.bin.sigstore
+            ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin
+            ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin.sha256
+            ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin.sigstore
