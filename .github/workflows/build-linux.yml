@@ -59,14 +59,16 @@ jobs:
           sha256sum ${{github.workspace}}/bombom-linux-arm64.bin > ${{github.workspace}}/bombom-linux-arm64.bin.sha256
           sha256sum ${{github.workspace}}/bombom-linux-amd64.bin > ${{github.workspace}}/bombom-linux-amd64.bin.sha256
 
-      - name: Test and attest amd64
-        uses: ./.github/workflows/test_and_attest.yml
-        with:
-          arch: "amd64"
-          attest: ${{ inputs.attest || false }}
+  test-attest-amd64:
+    needs: build
+    uses: ./.github/workflows/test_and_attest.yml
+    with:
+      arch: "amd64"
+      attest: ${{ inputs.attest || false }}
 
-      - name: Test and attest arm64
-        uses: ./.github/workflows/test_and_attest.yml
-        with:
-          arch: "arm64"
-          attest: ${{ inputs.attest || false }}
+  test-attest-arm64:
+    needs: build
+    uses: ./.github/workflows/test_and_attest.yml
+    with:
+      arch: "arm64"
+      attest: ${{ inputs.attest || false }}
