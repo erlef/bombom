@@ -56,8 +56,8 @@ jobs:
 
       - name: Generate checksums
         run: |
-          sha256sum ${{github.workspace}}/bombom/bombom-linux-arm64.bin > ${{github.workspace}}/bombom/bombom-linux-arm64.bin.sha256
-          sha256sum ${{github.workspace}}/bombom/bombom-linux-amd64.bin > ${{github.workspace}}/bombom/bombom-linux-amd64.bin.sha256
+          sha256sum ${{github.workspace}}/bombom-linux-arm64.bin > ${{github.workspace}}/bombom-linux-arm64.bin.sha256
+          sha256sum ${{github.workspace}}/bombom-linux-amd64.bin > ${{github.workspace}}/bombom-linux-amd64.bin.sha256
 
       - name: Test and attest amd64
         uses: ./.github/workflows/test_and_attest.yml
