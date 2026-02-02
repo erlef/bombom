@@ -29,7 +29,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: bombom-linux-${{ inputs.arch }}-temp
+          name: bombom-linux-${{ inputs.arch }}
           path: /tmp
 
       - name: Test artifacts
