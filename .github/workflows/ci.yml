@@ -12,6 +12,11 @@ on:
     branches:
       - "main"
 
+permissions:
+    contents: read
+    id-token: write
+    attestations: write
+
 jobs:
   build:
     uses: ./.github/workflows/build-linux.yml
