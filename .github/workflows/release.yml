@@ -10,30 +10,29 @@ permissions:
   attestations: write
 
 jobs:
-  build-amd64:
+  build-bombom:
     uses: ./.github/workflows/build-linux.yml
     with:
       otp_version: "28.1.1"
-      arch: "amd64"
-      # If triggered by GitHub Release, build from that tag; otherwise build from pushed tag.
-      bombom_ref: ${{ github.event.release.tag_name || github.ref_name }}
-      piadina_ref: "main"
+      rebar_version: "3.26.0"
       attest: true
 
-  build-arm64:
-    uses: ./.github/workflows/build-linux.yml
+  test-amd64:
+    needs: build-bombom
+    uses: ./.github/workflows/test_and_attest.yml
     with:
-      otp_version: "28.1.1"
+      arch: "amd64"
+
+  test-arm64:
+    needs: build-bombom
+    uses: ./.github/workflows/test_and_attest.yml
+    with:
       arch: "arm64"
-      bombom_ref: ${{ github.event.release.tag_name || github.ref_name }}
-      piadina_ref: "main"
-      attest: true
 
   publish:
-    name: Publish release assets
     needs:
-      - build-amd64
-      - build-arm64
+      - test-amd64
+      - test-arm64
     runs-on: ubuntu-latest
 
     env:
@@ -45,13 +44,13 @@ jobs:
       - name: Download amd64 artifacts
         uses: actions/download-artifact@v4
         with:
-          name: linux-amd64
+          name: bombom-linux-amd64
           path: dist/amd64
 
       - name: Download arm64 artifacts
         uses: actions/download-artifact@v4
         with:
-          name: linux-arm64
+          name: bombom-linux-arm64
           path: dist/arm64
 
       - name: Verify artifacts

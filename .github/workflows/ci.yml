@@ -12,19 +12,27 @@ on:
     branches:
       - "main"
 
-jobs:
-  build-amd64:
-    uses: ./.github/workflows/build-linux.yml
-    with:
-      otp_version: "28.1.1"
-      arch: "amd64"
-      bombom_ref: "main"
-      piadina_ref: "main"
+permissions:
+    contents: read
+    id-token: write
+    attestations: write
 
-  build-arm64:
+jobs:
+  build:
     uses: ./.github/workflows/build-linux.yml
     with:
       otp_version: "28.1.1"
+      rebar_version: "3.26.0"
+      attest: false
+
+  test-amd64:
+    needs: build
+    uses: ./.github/workflows/test_binaries.yml
+    with:
+      arch: "amd64"
+
+  test-arm64:
+    needs: build
+    uses: ./.github/workflows/test_binaries.yml
+    with:
       arch: "arm64"
-      bombom_ref: "main"
-      piadina_ref: "main"

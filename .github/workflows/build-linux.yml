@@ -5,60 +5,17 @@ on:
     inputs:
       otp_version:
         type: string
+        description: OTP version to use
         required: true
-
-      arch:
+        default: "28.1.1"
+      rebar_version:
         type: string
-        required: false
-        default: "amd64" # amd64 | arm64
-
-      openssl_version:
-        type: string
-        required: false
-        default: "3.5.1"
-
-      musl_version:
-        type: string
-        required: false
-        default: "1.2.5"
-
-      bombom_ref:
-        type: string
-        required: false
-        default: "main"
-
-      bombom_repo_url:
-        type: string
-        required: false
-        default: "https://github.com/stritzinger/bombom.git"
-
-      piadina_repo_url:
-        type: string
-        required: false
-        default: "https://github.com/stritzinger/piadina.git"
-
-      piadina_ref:
-        type: string
-        required: false
-        default: "main"
-
-      otp_cdn_base_url:
-        type: string
-        required: false
-        default: "https://beam-machine-universal.b-cdn.net"
-
-      beammachine_home_url:
-        type: string
-        required: false
-        default: "https://beammachine.cloud/"
-
-      rebar3_url:
-        type: string
-        required: false
-        default: "https://s3.amazonaws.com/rebar3/rebar3"
-
+        description: Rebar version to use
+        required: true
+        default: "3.26.0"
       attest:
         type: boolean
+        description: Whether to attest the build provenance
         required: false
         default: false
 
@@ -67,9 +24,13 @@ permissions:
   id-token: write
   attestations: write
 
+env:
+  OTP_VERSION: "28.1.1"
+  REBAR_VERSION: "3.26.0"
+
 jobs:
   build:
-    runs-on: ${{ inputs.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-latest' }}
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v4
@@ -78,49 +39,64 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y \
-            curl ca-certificates git build-essential python3 \
-            autoconf automake libtool \
-            musl-dev musl-tools
+            git build-essential pkg-config zlib1g-dev
 
-      - name: Build bombom.bin (driver)
-        env:
-          ARCH_IN: ${{ inputs.arch }}
-          OTP_VERSION: ${{ inputs.otp_version }}
-          OPENSSL_VERSION: ${{ inputs.openssl_version }}
-          MUSL_VERSION: ${{ inputs.musl_version }}
-          OTP_CDN_BASE_URL: ${{ inputs.otp_cdn_base_url }}
-          BEAMMACHINE_HOME_URL: ${{ inputs.beammachine_home_url }}
-          REBAR3_URL: ${{ inputs.rebar3_url }}
+      - name: Setup BEAM
+        uses: erlef/setup-beam@v1
+        with:
+          otp-version: ${{ inputs.otp_version || env.OTP_VERSION }}
+          rebar3-version: ${{ inputs.rebar_version || env.REBAR_VERSION }}
 
-          BOMBOM_REF: ${{ inputs.bombom_ref }}
-          BOMBOM_REPO_URL: ${{ inputs.bombom_repo_url }}
-          PIADINA_REPO_URL: ${{ inputs.piadina_repo_url }}
-          PIADINA_REF: ${{ inputs.piadina_ref }}
+      - name: Build binaries using cassone
         run: |
-          chmod +x scripts/build-linux-driver.sh
-          ./scripts/build-linux-driver.sh
+          rebar3 cassone
 
-      - name: Attest build provenance
+      - name: Generate checksums
+        run: |
+          sha256sum ${{github.workspace}}/bombom-linux-arm64.bin > ${{github.workspace}}/bombom-linux-arm64.bin.sha256
+          sha256sum ${{github.workspace}}/bombom-linux-amd64.bin > ${{github.workspace}}/bombom-linux-amd64.bin.sha256
+
+      - name: Attest build provenance (arm64)
         uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
-        id: attest-provenance
+        id: attest-provenance-arm64
         if: ${{ inputs.attest }}
         with:
-          subject-path: dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}
+          subject-path: ${{ github.workspace }}/bombom-linux-arm64.bin
+
+      - name: Attest build provenance (amd64)
+        uses: actions/attest-build-provenance@00014ed6ed5efc5b1ab7f7f34a39eb55d41aa4f8 # v3.1.0
+        id: attest-provenance-amd64
+        if: ${{ inputs.attest }}
+        with:
+          subject-path: ${{ github.workspace }}/bombom-linux-amd64.bin
 
       - name: Export provenance bundle
         if: ${{ inputs.attest }}
-        shell: bash
+        env:
+          ATT_BUNDLE_ARM64: ${{ steps.attest-provenance-arm64.outputs.bundle-path }}
+          ATT_BUNDLE_AMD64: ${{ steps.attest-provenance-amd64.outputs.bundle-path }}
         run: |
           set -euo pipefail
-          cp "${ATTESTATION}" "dist/${ARCH_IN}/${OUTPUT}.sigstore"
-        env:
-          ATTESTATION: ${{ steps.attest-provenance.outputs.bundle-path }}
+          cp "${{ env.ATT_BUNDLE_ARM64 }}" "${{ github.workspace }}/bombom-linux-arm64.bin.sigstore"
+          cp "${{ env.ATT_BUNDLE_AMD64 }}" "${{ github.workspace }}/bombom-linux-amd64.bin.sigstore"
 
-      - name: Upload artifacts
+
+      - name: Upload arm64 artifacts
         uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: linux-${{ env.ARCH_IN }}
+          name: bombom-linux-arm64
           path: |
-            dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}
-            dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}.sha256
-            dist/${{ env.ARCH_IN }}/${{ env.OUTPUT }}.sigstore
+            ${{github.workspace}}/bombom-linux-arm64.bin
+            ${{github.workspace}}/bombom-linux-arm64.bin.sha256
+            ${{github.workspace}}/bombom-linux-arm64.bin.sigstore
+
+      - name: Upload amd64 artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: bombom-linux-amd64
+          path: |
+            ${{github.workspace}}/bombom-linux-amd64.bin
+            ${{github.workspace}}/bombom-linux-amd64.bin.sha256
+            ${{github.workspace}}/bombom-linux-amd64.bin.sigstore

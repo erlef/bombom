@@ -1,0 +1,39 @@
+name: Test artifact
+
+on:
+  workflow_call:
+    inputs:
+      arch:
+        type: string
+        description: Architecture used for the test
+        required: true
+        default: "am64" # amd64 or arm64
+      attest:
+        type: boolean
+        description: Whether to attest the build provenance
+        required: false
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+  attestations: write
+
+jobs:
+  build:
+    runs-on: ${{ inputs.arch == 'arm64' && 'ubuntu-22.04-arm' || 'ubuntu-latest' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: bombom-linux-${{ inputs.arch }}
+          path: /tmp
+
+      - name: Test artifacts
+        run: |
+          mv /tmp/bombom-linux-${{ inputs.arch }}.bin ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin
+          chmod +x ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin
+          ${{ github.workspace }}/bombom-linux-${{ inputs.arch }}.bin -F json -f
