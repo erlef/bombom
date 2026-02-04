@@ -19,13 +19,13 @@ jobs:
 
   test-amd64:
     needs: build-bombom
-    uses: ./.github/workflows/test_and_attest.yml
+    uses: ./.github/workflows/test_binaries.yml
     with:
       arch: "amd64"
 
   test-arm64:
     needs: build-bombom
-    uses: ./.github/workflows/test_and_attest.yml
+    uses: ./.github/workflows/test_binaries.yml
     with:
       arch: "arm64"
 
