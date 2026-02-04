@@ -8,6 +8,12 @@ and this project adheres to
 
 ## [Unreleased]
 
+## [1.1.0] - 2026-02-04
+
+### Changed
+
+- Use cassone to build the binaries for Linux (amd64/arm64)
+
 ## [1.0.3] - 2026-01-16
 
 ### Changed
@@ -39,7 +45,9 @@ and this project adheres to
 
 - Wrap rebar3 and rebar3_sbom in escript
 
-[Unreleased]: https://github.com/erlef/bombom/compare/1.0.3...HEAD
+[Unreleased]: https://github.com/erlef/bombom/compare/1.1.0...HEAD
+[1.1.0]: https://github.com/erlef/bombom/compare/1.0.4...1.1.0
+[1.0.4]: https://github.com/erlef/bombom/compare/1.0.3...1.0.4
 [1.0.3]: https://github.com/erlef/bombom/compare/1.0.2...1.0.3
 [1.0.2]: https://github.com/erlef/bombom/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/erlef/bombom/compare/1.0.0...1.0.1
