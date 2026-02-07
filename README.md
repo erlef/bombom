@@ -13,7 +13,7 @@ A standalone Erlang escript that wraps [rebar3](https://www.rebar3.org/) and aut
 
 The project provides two distribution formats:
 - **`bombom` escript**: The standard Erlang escript that requires Erlang/OTP to be installed
-- **`bombom.bin`**: A fully self-contained binary bundle that includes OTP and all dependencies, compiled with musl-libc for maximum portability. The binary is assembled using [Piadina](https://github.com/stritzinger/piadina), a generic launcher tooling that automatically installs and executes a payload attached to itself
+- **`bombom.bin`**: A fully self-contained binary bundle that includes OTP and all dependencies, compiled with musl-libc for maximum portability. The binary is assembled using [Piadina](https://github.com/erlef/piadina), a generic launcher tooling that automatically installs and executes a payload attached to itself
 
 ## Features
 
@@ -112,7 +112,7 @@ For reproducible builds, the plugin reference is intended to be pinned to a spec
 
 ### Bundled Binary Architecture
 
-The `bombom.bin` executable is assembled using [Piadina](https://github.com/stritzinger/piadina), a generic launcher tooling that automatically installs and executes a payload attached to itself. For details on how the binary is built and assembled, see the [Piadina repository](https://github.com/stritzinger/piadina).
+The `bombom.bin` executable is assembled using [Piadina](https://github.com/erlef/piadina), a generic launcher tooling that automatically installs and executes a payload attached to itself. For details on how the binary is built and assembled, see the [Piadina repository](https://github.com/erlef/piadina).
 
 The bundled binary includes:
 - OTP runtime (compiled with musl-libc)
@@ -191,4 +191,4 @@ Licensed under the Apache License 2.0. See [LICENSE.md](LICENSE.md) for details.
 
 - [rebar3 Documentation](https://www.rebar3.org/docs)
 - [rebar3_sbom Plugin](https://github.com/erlef/rebar3_sbom)
-- [Piadina](https://github.com/stritzinger/piadina) - Generic launcher tooling
+- [Piadina](https://github.com/erlef/piadina) - Generic launcher tooling

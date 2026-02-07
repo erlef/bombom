@@ -15,9 +15,9 @@ OTP_VERSION="${OTP_VERSION:-28.1.1}"
 OPENSSL_VERSION="${OPENSSL_VERSION:-3.5.1}"
 MUSL_VERSION="${MUSL_VERSION:-1.2.5}"
 
-BOMBOM_REPO_URL="${BOMBOM_REPO_URL:-https://github.com/stritzinger/bombom.git}"
+BOMBOM_REPO_URL="${BOMBOM_REPO_URL:-https://github.com/erlef/bombom.git}"
 BOMBOM_REF="${BOMBOM_REF:-main}"
-PIADINA_REPO_URL="${PIADINA_REPO_URL:-https://github.com/stritzinger/piadina.git}"
+PIADINA_REPO_URL="${PIADINA_REPO_URL:-https://github.com/erlef/piadina.git}"
 PIADINA_REF="${PIADINA_REF:-main}"
 
 OTP_CDN_BASE_URL="${OTP_CDN_BASE_URL:-https://beam-machine-universal.b-cdn.net}"
